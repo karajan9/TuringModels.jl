@@ -14,12 +14,12 @@ first(df2, 5)
 
 # Extract variables for Turing model
 
-y = convert(Vector{Float64}, df2[:, :height]);
 x = convert(Vector{Float64}, df2[:, :weight_c]);
+y = convert(Vector{Float64}, df2[:, :height]);
 
 # Define the regression model
 
-@model line(y, x) = begin
+@model line(x, y) = begin
     #priors
     alpha ~ Normal(178.0, 100.0)
     beta ~ Normal(0.0, 10.0)
@@ -28,14 +28,11 @@ x = convert(Vector{Float64}, df2[:, :weight_c]);
     #model
     mu = alpha .+ beta*x
     for i in 1:length(y)
-      y[i] ~ Normal(mu[i], s)
+        y[i] ~ Normal(mu[i], s)
     end
 end;
 
 # Draw the samples
-
-samples = 2000
-adapt_cycles = 1000
 
 chns = sample(line(x, y), NUTS(0.65), 1000)
 
